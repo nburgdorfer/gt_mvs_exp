@@ -1,0 +1,32 @@
+data_path: /home/nate/data/DTU
+output_path: /mnt/Drive1/Results/GT/DTU/Output/
+device: cuda:0
+seed: 43
+num_workers: 4
+
+camera:
+    height: 1200
+    width: 1600
+    near: 425
+    far: 937
+    crop_h: 48
+    crop_w: 0
+    baseline_mode: min
+
+inference:
+    frame_spacing: 1
+    num_frame: 1
+    sample_mode: cluster
+    scale: 1.0
+
+point_cloud:
+  image_region_th: 2
+  depth_region_th: 2
+  pix_th: 0.5
+  prob_th: 0.0
+  num_consistent: 1
+  mask_th: 20
+  max_dist: 0.5
+  min_dist: 0.0
+  min_point_dist: 0.03 # use 0.2 (0.03) with sparse (dense) GT point clouds
+  resolution: dense # OPTIONS: [sparse, dense]
