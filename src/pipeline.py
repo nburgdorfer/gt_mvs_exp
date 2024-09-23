@@ -16,14 +16,14 @@ from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
-## Custom libraries
-from src.pipelines.BasePipeline import BasePipeline
-from src.evaluation.eval_2d import depth_acc
-from src.datasets.BaseDataset import build_dataset
 from cvt.common import to_gpu, laplacian_pyramid
 from cvt.io import write_pfm
 from cvt.geometry import visibility, get_uncovered_mask, edge_mask
 from cvt.visualization import visualize_mvs, laplacian_depth_error, laplacian_count, laplacian_uncovered_count, plot_laplacian_matrix
+
+## Custom libraries
+from src.evaluation.eval_2d import depth_acc
+from src.datasets.BaseDataset import build_dataset
 
 class Pipeline():
     def __init__(self, cfg, config_path, log_path, model_name, training_scenes=None, validation_scenes=None, inference_scene=None):
@@ -41,11 +41,15 @@ class Pipeline():
         self.depth_path = os.path.join(self.output_path, "depth")
         self.conf_path = os.path.join(self.output_path, "confidence")
         self.rgb_path = os.path.join(self.output_path, "rgb")
+        self.reprojection_path = os.path.join(self.output_path, "reprojection")
+        self.laplacian_path = os.path.join(self.output_path, "laplacian")
         self.vis_path = os.path.join(self.output_path, "visuals")
         os.makedirs(self.output_path, exist_ok=True)
         os.makedirs(self.depth_path, exist_ok=True)
         os.makedirs(self.conf_path, exist_ok=True)
         os.makedirs(self.rgb_path, exist_ok=True)
+        os.makedirs(self.reprojection_path, exist_ok=True)
+        os.makedirs(self.laplacian_path, exist_ok=True)
         os.makedirs(self.vis_path, exist_ok=True)
         self.batch_size = 1
 
@@ -61,20 +65,19 @@ class Pipeline():
         with tqdm(data_loader, desc=f"MVS-Studio {mode}{title_suffix}", unit="batch") as loader:
             for batch_ind, data in enumerate(loader):
                 # compute laplacians
-                data["image_laplacian"] = laplacian_pyramid(data["images"][:,0], tau=0.02)
-                data["depth_laplacian"] = laplacian_pyramid(data["target_depth"], tau=0.25)
 
                 output = {}
+                output["image_laplacian"] = laplacian_pyramid(data["images"][:,0])
+                output["depth_laplacian"] = laplacian_pyramid(data["target_depth"])
                 output["final_depth"] = torch.clone(data["target_depth"])
                 output["confidence"] = torch.ones_like(output["final_depth"])
 
                 # mask out sharp regions
-                output["final_depth"] *= torch.where(data["depth_laplacian"] <= 3, 1.0, 0.0)
+                output["final_depth"] *= torch.where(output["depth_laplacian"] <= 100, 1.0, 0.0)
 
                 # Store network output
                 self.save_output(data, output, mode, batch_ind, epoch)
-                #data["est_depth_laplacian"] = laplacian_pyramid(output["final_depth"], tau=0.25)
-                #visualize_mvs(data, output, batch_ind, self.vis_path, self.cfg["visualization"]["max_depth_error"])
+                #visualize_mvs(data, output, batch_ind, self.vis_path, self.cfg["visualization"]["max_depth_error"], mode="gt", epoch=-1)
 
     def build_dataset(self):
         self.inference_dataset = build_dataset(self.cfg, self.mode, self.inference_scene)

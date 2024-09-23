@@ -9,7 +9,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 from cvt.io import read_pfm
-from src.loss.functions import MAE
+from cvt.metrics import MAE
 
 def projection_eval(est_depth_path, est_conf_path, dataset):
     all_depth_files = os.listdir(est_depth_path)
@@ -120,34 +120,6 @@ def depth_fscore(est_depth_path, est_conf_path, dataset, th=2.0):
         fscore[i,2] = (2*precision[i,2]*recall[i,2]) / (precision[i,2] + recall[i,2])
         
     return precision.mean(axis=0), recall.mean(axis=0), fscore.mean(axis=0)
-
-#def depth_fscore(est_depth_path, est_conf_path, dataset, file_ext):
-#    # get depth map filenames
-#    est_depth_files = os.listdir(est_depth_path)
-#    est_depth_files = [edf for edf in est_depth_files if edf[-(len(file_ext)):] == file_ext ]
-#    est_depth_files.sort()
-#
-#    # load target depth maps
-#    target_depths = dataset.get_all_depths()
-#
-#    acc = np.zeros((len(est_depth_files)), dtype=np.float32)
-#    comp = np.zeros((len(est_depth_files)), dtype=np.float32)
-#    for i, edf in enumerate(est_depth_files):
-#        ref_ind = int(edf[:8])
-#        est_depth = torch.tensor(read_pfm(os.path.join(est_depth_path, edf)))
-#        target_depth = target_depths[ref_ind]
-#
-#        est_mask = torch.where(est_depth > 0, 1, 0)
-#        gt_mask = torch.where(target_depth > 0, 1, 0)
-#        
-#        # compute accuracy and completeness
-#        acc[i] = (torch.abs(est_depth - target_depth) * (est_mask*gt_mask)).mean()
-#        comp[i] = (torch.abs(est_depth - target_depth) * gt_mask).mean()
-#
-#    acc = acc.mean()
-#    comp = comp.mean()
-#
-#    return acc, comp
 
 def eval_2d(paths, dataset, vis_path=None, scale=True):
     # threshold values used for depth error pixel percentages

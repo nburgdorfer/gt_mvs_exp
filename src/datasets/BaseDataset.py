@@ -154,7 +154,7 @@ class BaseDataset(data.Dataset):
         data["images"] = images
         data["poses"] = poses
         data["target_depth"] = target_depths[0]
-        data["target_depth_1"] = target_depths[1]
+        #data["target_depth_1"] = target_depths[1]
         if self.cfg["camera"]["baseline_mode"] == "min":
             data["baseline"] = min_baseline
         elif self.cfg["camera"]["baseline_mode"] == "max":

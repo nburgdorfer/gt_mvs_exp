@@ -275,8 +275,8 @@ def laplacians(cfg, paths):
         image = image.reshape(1,c,height,width).to(torch.float32)
         est_depth = torch.tensor(read_pfm(os.path.join(paths["depth"], edf))).reshape(1,1,height,width).to(torch.float32)
 
-        image_laplacian,_ = laplacian_pyramid(image, tau=0.1)
-        est_depth_laplacian,_ = laplacian_pyramid(est_depth, tau=1.0)
+        image_laplacian = laplacian_pyramid(image)
+        est_depth_laplacian = laplacian_pyramid(est_depth)
 
         img_lap = image_laplacian[0,0].detach().cpu().numpy()
         img_lap_filename = os.path.join(paths["laplacian"], f"{ref_ind:08d}_image.pfm")

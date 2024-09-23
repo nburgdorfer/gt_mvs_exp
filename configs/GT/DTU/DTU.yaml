@@ -1,5 +1,5 @@
 data_path: /home/nate/data/DTU
-output_path: /mnt/Drive1/Results/GT/DTU/Output/
+output_path: /mnt/Drive1/Results/DTU/GT/
 device: cuda:0
 seed: 43
 num_workers: 4

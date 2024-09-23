@@ -41,7 +41,7 @@ avg_fscore = np.zeros((len(scenes)))
 for i, scene in enumerate(scenes):
     print(f"\n----Running MVS on {scene}----")
     pipeline = Pipeline(cfg=cfg, config_path=ARGS.config_path, log_path=ARGS.log_path, model_name=ARGS.model, inference_scene=[scene])
-    pipeline.inference()
+    #pipeline.inference()
 
     ####### 2D EVALUATION ####
     print("\n---Evaluating depth maps---")
@@ -51,7 +51,7 @@ for i, scene in enumerate(scenes):
             "rgb": pipeline.rgb_path,
             "reprojection": pipeline.reprojection_path,
             "laplacian": pipeline.laplacian_path}
-    reprojection_error(cfg, pipeline.depth_path, pipeline.rgb_path, pipeline.reprojection_path, pipeline.inference_dataset, scene)
+    #reprojection_error(cfg, pipeline.depth_path, pipeline.rgb_path, pipeline.reprojection_path, pipeline.inference_dataset, scene)
     laplacians(cfg, paths)
     mae, auc, percentages = eval_2d(paths, pipeline.inference_dataset, pipeline.vis_path, scale=False)
     avg_mae[i] = mae
